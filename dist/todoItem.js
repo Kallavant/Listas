@@ -1,4 +1,3 @@
-"use strict";
 /*export class TodoItem {
   public id: number;
   public task: string;
@@ -15,9 +14,7 @@
   }
 }
 */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TodoItem = void 0;
-class TodoItem {
+export class TodoItem {
     constructor(id, task, complete = false) {
         this.id = id;
         this.task = task;
@@ -28,4 +25,3 @@ class TodoItem {
         console.log(`${this.id}\t${this.task} ${this.complete ? "\t(complete)" : ""}`);
     }
 }
-exports.TodoItem = TodoItem;
