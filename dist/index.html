@@ -1,34 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Todo List</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <h1>Todo List</h1>
-  
-  <div>
-    <input type="text" id="taskInput" placeholder="Enter a new task">
-    <button id="addTaskButton">Add Task</button>
-  </div>
-  
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Task</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="todoTableBody">
-      <!-- Las tareas se agregarán aquí dinámicamente -->
-    </tbody>
-  </table>
-  
-  <!-- Cargar el módulo de inicialización -->
-  <script type="module" src="app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo List</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 20px;
+        background-color: #f9f9f9;
+        color: #333;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2rem;
+        color: #444;
+      }
+
+      #taskInput {
+        width: 60%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+
+      #addTaskButton {
+        padding: 10px 15px;
+        font-size: 1rem;
+        color: white;
+        background-color: #28a745;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      #addTaskButton:hover {
+        background-color: #218838;
+      }
+
+      table {
+        margin: 20px auto;
+        border-collapse: collapse;
+        width: 90%;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+        font-size: 0.9rem;
+      }
+
+      th {
+        background-color: #f4f4f4;
+        font-size: 1rem;
+        color: #555;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      tr:hover {
+        background-color: #f1f1f1;
+      }
+
+      .completado {
+        text-decoration: line-through;
+        color: #999;
+      }
+
+      button.toggle-btn,
+      button.delete-btn {
+        padding: 5px 10px;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button.toggle-btn {
+        background-color: #007bff;
+        color: white;
+      }
+
+      button.toggle-btn:hover {
+        background-color: #0056b3;
+      }
+
+      button.delete-btn {
+        background-color: #dc3545;
+        color: white;
+      }
+
+      button.delete-btn:hover {
+        background-color: #c82333;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Todo List</h1>
+
+    <div>
+      <input type="text" id="taskInput" placeholder="Enter a new task" />
+      <button id="addTaskButton">Add Task</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tarea</th>
+          <th>Estado</th>
+          <th>Accion</th>
+        </tr>
+      </thead>
+      <tbody id="todoTableBody">
+        <!-- Tasks will be dynamically added here -->
+      </tbody>
+    </table>
+
+    <!-- Script principal que reemplaza al index.js -->
+    <script type="module">
+      // Importar las clases directamente desde los módulos
+      import { TodoItem } from "./todoItem.js";
+      import { TodoCollection } from "./todoCollection.js";
+
+      // Ejecutar el mismo código que estaba en index.js
+      let todos = [
+        new TodoItem(1, "Buy Flowers"),
+        new TodoItem(2, "Get Shoes"),
+        new TodoItem(3, "Collect Tickets"),
+        new TodoItem(4, "Call Joe", true),
+      ];
+
+      let collection = new TodoCollection("Adam", todos);
+
+      // Limpiar consola y mostrar información (como hacía el index.js)
+      console.clear();
+      console.log(`${collection.userName}'s Todo List`);
+
+      // Mostrar tareas en la consola para pruebas
+      collection.getTodoItems(true).forEach((item) => item.printDetails());
+
+      // A partir de aquí, añadimos la funcionalidad para la interfaz de usuario
+
+      // Función para renderizar las tareas en la tabla
+      function renderTasks() {
+        const todoTableBody = document.getElementById("todoTableBody");
+        todoTableBody.innerHTML = "";
+
+        collection.getTodoItems(true).forEach((item) => {
+          const row = document.createElement("tr");
+          row.dataset.id = item.id;
+
+          row.innerHTML = `
+          <td>${item.id}</td>
+          <td class="${item.complete ? "completado" : ""}">${item.task}</td>
+          <td>${item.complete ? "Completado" : "Incompleto"}</td>
+          <td>
+            <button class="toggle-btn">${
+              item.complete ? "Desmarcar" : "Marcar como Completado"
+            }</button>
+            <button class="delete-btn">Borrar</button>
+          </td>
+        `;
+          todoTableBody.appendChild(row);
+        });
+      }
+
+      // Función para añadir una tarea
+      function addTask() {
+        const taskInput = document.getElementById("taskInput");
+        const task = taskInput.value.trim();
+
+        if (task) {
+          collection.addTodo(task);
+          taskInput.value = "";
+          renderTasks();
+        }
+      }
+
+      // Función para cambiar el estado de una tarea
+      function toggleComplete(id) {
+        const task = collection.getTodoById(id);
+        if (task) {
+          collection.markComplete(id, !task.complete);
+          renderTasks();
+        }
+      }
+
+      // Función para eliminar una tarea
+      function deleteTask(id) {
+        collection.itemMap.delete(id);
+        renderTasks();
+      }
+
+      // Inicializar la interfaz de usuario cuando el DOM esté listo
+      document.addEventListener("DOMContentLoaded", () => {
+        // Seleccionar elementos
+        const taskInput = document.getElementById("taskInput");
+        const addTaskButton = document.getElementById("addTaskButton");
+        const todoTableBody = document.getElementById("todoTableBody");
+
+        // Evento para añadir tarea con el botón
+        addTaskButton.addEventListener("click", addTask);
+
+        // Evento para los botones de la tabla usando delegación de eventos
+        todoTableBody.addEventListener("click", (e) => {
+          if (e.target.tagName === "BUTTON") {
+            const row = e.target.closest("tr");
+            const id = parseInt(row.dataset.id);
+
+            if (e.target.classList.contains("toggle-btn")) {
+              toggleComplete(id);
+            } else if (e.target.classList.contains("delete-btn")) {
+              deleteTask(id);
+            }
+          }
+        });
+
+        // Renderizar las tareas iniciales
+        renderTasks();
+      });
+    </script>
+  </body>
 </html>
